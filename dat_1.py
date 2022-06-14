@@ -5,7 +5,9 @@ import datetime
 
 
 def create_maintable():
-    connection = sqlite3.connect("/home/luis/Documents/Python/database/database.db")
+    connection = sqlite3.connect(
+        "/home/luis/Documents/Python/database/database.db"
+    )
     c = connection.cursor()
     c.execute(
         """
@@ -49,9 +51,7 @@ def format_info(df):
     fecha = [int(i) for i in input("fecha: ").split("-")]
     date = datetime.datetime(fecha[0], fecha[1], fecha[2])
     mes = date.strftime("%B")
-    date = date.strftime("%Y-%m-%d")
-    date = str(date)
-    df = df.assign(fecha=date)
+    df = df.assign(fecha=str(date.strftime("%Y-%m-%d")))
     df = df.assign(mes=mes)
     return df
 
@@ -77,8 +77,6 @@ def inser_into_main(df):
     connection.commit()
     connection.close()
 
-
-create_maintable()
 
 df = open_file()
 
