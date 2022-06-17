@@ -79,7 +79,7 @@ def insert_into_main(df, database):
         area, fecha,
         mes) VALUES (?,?,?,?,?,?,?,?)
         """,
-        df,
+        df
     )
     connection.commit()
     connection.close()
@@ -92,8 +92,24 @@ def get_master():
         data.append(i)
     conn.close()
     df = pd.DataFrame(data, columns=cols)
-    df.to_csv('master_data.csv', index=False)
-    print(df)
-    # return data
+    #df.to_csv('master_data.csv', index=False)
+    #print(df)
+    return df
 
-get_master()
+
+def combinar_material(df):
+    moq = pd.read_csv('moq.csv')
+    df['concatenado'] = df['area'] + '+' + df['codigo del material'] + '+' + df['fecha'] + '+' + df['unidad']
+    concatenado = df.concatenado.unique()
+    cantidad_total = [ df[df['concatenado'] == i ]['cantidad'].sum()  for i in concatenado ]
+    combinado = pd.DataFrame(list(zip(concatenado, cantidad_total)), columns=['concatenado', 'total'])
+    combinado[['area','codigo del material', 'fecha', 'unidad']]=combinado.concatenado.str.split('+',expand=True)
+    combinado.to_csv('combinado.csv', index=False)
+    
+    print(moq)
+    #for i in cantidad_total:
+    #    print(i)
+
+
+combinar_material(get_master())
+
