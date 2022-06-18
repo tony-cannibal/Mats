@@ -1,11 +1,18 @@
+##################################
+# These are my imported libraries
 import  sqlite3
 import pandas as pd
 from tkinter import filedialog as fd
 import datetime
+import numpy as np
+from pathlib import Path
+from pathlib import Path
 
 
+##################################
+# these are my global variables
+home_dir = Path.home()
 database = 'C:/Materiales/db_1.db'
-
 cols = [
     'id',
     'maquina',
@@ -18,6 +25,9 @@ cols = [
     'mes'
     ]
 
+
+##################################
+# these are my functions
 def create_maintable(database):
     connection = sqlite3.connect(database)
     c = connection.cursor()
@@ -39,9 +49,10 @@ def create_maintable(database):
     connection.commit()
     connection.close()
 
+
 def open_file():
     filename = fd.askopenfilename(
-        initialdir="C:/Users/YR PROD ORDER/Desktop/MATERIALES/P",
+        initialdir=f"{home_dir}\Desktop\MATERIALES\P",
         title="Open A File",
         filetypes=(("xlsx files", "*.xlsx"), ("All Files", "*.*")),
     )
@@ -56,13 +67,16 @@ def open_file():
 
 
 def format_info(df):
-    ar = input("Area: ")
-    df = df.assign(area=ar)
+    maquinas = pd.read_csv('maquinas.csv')
+    df = pd.merge(df, maquinas, on='Maquina', how='left')
+    # ar = input("Area: ")
+    # df = df.assign(area=ar)
     fecha = [int(i) for i in input("fecha: ").split("-")]
     date = datetime.datetime(fecha[0], fecha[1], fecha[2])
     mes = date.strftime("%B")
     df = df.assign(fecha=str(date.strftime("%Y-%m-%d")))
     df = df.assign(mes=mes)
+    df.to_csv('df.csv', index=False)
     return df
 
 
@@ -84,6 +98,7 @@ def insert_into_main(df, database):
     connection.commit()
     connection.close()
 
+
 def get_master():
     data = []
     conn = sqlite3.connect(database)
@@ -102,14 +117,22 @@ def combinar_material(df):
     df['concatenado'] = df['area'] + '+' + df['codigo del material'] + '+' + df['fecha'] + '+' + df['unidad']
     concatenado = df.concatenado.unique()
     cantidad_total = [ df[df['concatenado'] == i ]['cantidad'].sum()  for i in concatenado ]
-    combinado = pd.DataFrame(list(zip(concatenado, cantidad_total)), columns=['concatenado', 'total'])
-    combinado[['area','codigo del material', 'fecha', 'unidad']]=combinado.concatenado.str.split('+',expand=True)
-    combinado.to_csv('combinado.csv', index=False)
-    
-    print(moq)
-    #for i in cantidad_total:
-    #    print(i)
+    comb = pd.DataFrame(list(zip(concatenado, cantidad_total)), columns=['concatenado', 'total ordenado'])
+    comb[['area','codigo del material', 'fecha', 'unidad']]=comb.concatenado.str.split('+',expand=True)
+    comb = comb.drop('concatenado', axis=1)
+    comb = pd.merge(comb, moq[['codigo del material', 'packing']], on='codigo del material', how='left')
+    comb['cantidad de pkg'] = (comb['total ordenado'] / comb['packing']).apply(np.ceil)
+    comb['excedente'] = (comb['cantidad de pkg'] * comb['packing']) - comb['total ordenado']
+    comb = comb.reindex(columns=['fecha',  'area','codigo del material',  'total ordenado', 'unidad',
+       'packing', 'cantidad de pkg', 'excedente'])
+    comb = comb.fillna(0)
+    comb.to_csv('combinado.csv', index=False) 
+    #print(comb)
+    return comb
 
 
-combinar_material(get_master())
+###################################
+# The code gets excecuted here
+materiales = format_info(open_file())
+print(materiales)
 
