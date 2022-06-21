@@ -30,14 +30,26 @@ class Materiales:
         else:
             self.pkg_entregado += 1
 
+    @classmethod
+    def instantiate_list(cls, mats):
+        for i in mats:
+            Materiales(
+                area=i.get('area'),codigo=i.get('codigo'), cantidad=i.get('cantidad'),
+                pkg=i.get('pkg'), cantidad_pkg=i.get('cantidad_pkg'),
+                pkg_entregado=i.get('pkg_entregado'))
+
     def __repr__(self):
         return f"area: {self.area}, codigo: {self.codigo}, cantidad:{self.cantidad}, pkg: {self.pkg}, pkg_entregado: {self.pkg_entregado}"
 
 
-terminal = Materiales('m1', 'tkt', 3000, 1500, 2, 0)
-terminal_2 = Materiales('m1', 'tyr', 4000, 2000, 2, 0)
+mats=[
+     {'area':'m1', 'codigo':'tkt', 'cantidad':3000, 'pkg':1500, 'cantidad_pkg':2, 'pkg_entregado':0},
+     {'area':'m1', 'codigo':'tyr', 'cantidad':6000, 'pkg':2000, 'cantidad_pkg':3, 'pkg_entregado':0},
+     {'area':'m1', 'codigo':'tap', 'cantidad':6000, 'pkg':1500, 'cantidad_pkg':4, 'pkg_entregado':0},
+     {'area':'m2', 'codigo':'tsm', 'cantidad':10000, 'pkg':2500, 'cantidad_pkg':4, 'pkg_entregado':0},
+      ]
 
-print(terminal.pkg_entregado)
-terminal.entregar_material()
-print(terminal.pkg_entregado)
+Materiales.instantiate_list(mats)
 
+for i in Materiales.todos:
+    print(i)
