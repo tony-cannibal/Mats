@@ -6,11 +6,11 @@ import datetime
 import numpy as np
 from pathlib import Path
 import os.path
-
+import os
 
 ##################################
 # these are my global variables
-
+path = '/home/luis/Documents/Python/linux_database/Materiales/'
 database = 'materiales.db'
 temp = 'temp.csv'
 
@@ -40,17 +40,27 @@ maquinas  =  {
 
 
 def format_info(df, fecha):
-    maquinas = pd.read_csv('maquinas.csv')
+    maquinas = pd.read_csv('/home/luis/Documents/Python/linux_database/Maquinas.csv')
     df = pd.merge(df, maquinas, on='Maquina', how='left')
     date = datetime.datetime(fecha[0], fecha[1], fecha[2])
-    df = df.assign(Fecha=str(date.strftime("%Y-%m-%d")))
-    df = df.assign(mes=meses[date.strftime("%B")])
-    df.to_csv('input.csv', index=False)
+    df = df.assign(fecha=str(date.strftime("%Y-%m-%d")))
+    df = df.assign(mes=meses[date.strftime("%B")]) 
+    df = df.rename(columns = {'Maquina':'maquina', 'Codigo del material':'codigo del material', 'Nombre del material':'nombre del material', 'Cantidad':'cantidad', 'Unidad':'unidad'})   
+    # df.to_csv('input.csv', index=False)
+    # print(df)
     return df, date
 
 def open_file_cmd():
-    file = input('Que fecha quieres introducir?. ')
-    df = pd.read_excel(f"/home/luis/Documents{file}.xlsx")
+    print('Que fecha quieres introducir?. ')
+    dir_list = os.listdir(path)
+    a = 1
+    for i in dir_list:
+        print(f'{i} {a}')
+        a += 1
+    dec = int(input())
+    file = dir_list[dec - 1]
+    os.system('clear')
+    df = pd.read_excel(f"/home/luis/Documents/Python/linux_database/Materiales/{file}")
     fecha = [int(i) for i in file.split("-")]
     df, fecha = format_info(df, fecha)    
     return df, fecha
@@ -58,7 +68,7 @@ def open_file_cmd():
 
 def open_file():
     file_dir = fd.askopenfilename(
-        initialdir=f"/home/luis/",
+        initialdir=f"/home/luis/Documents/Python/linux_database/",
         title="Open A File",
         filetypes=(("xlsx files", "*.xlsx"), ("All Files", "*.*")),
         )
@@ -74,21 +84,6 @@ def open_file():
         except ValueError:
             print("File could not be read.")
 
-
-
-
-
-def get_master():
-    data = []
-    conn = sqlite3.connect(database)
-    c = conn.cursor()
-    for i in c.execute('SELECT * FROM materiales'):
-        data.append(i)
-    conn.close()
-    df = pd.DataFrame(data, columns=cols)
-    df.to_csv('master_data.csv', index=False)
-    print(df)
-    return df
 
 
 def combinar_material(df, date):
@@ -137,16 +132,18 @@ def combinar_material(df, date):
 ###################################
 # The code gets excecuted here
 
-run =1
-while run ==1:
+# run =1
+# while run ==1:
     
-    choice = int(input('What do you want to do. '))
-    if choice == 1:
-        carga, date = open_file_cmd()
-        combinar_material(carga, date)
-        print(carga)
-    elif choice == 2:
-        print('Something else')
-    elif choice ==3:
-        run = 0
-        print('adios')
+#     choice = int(input('What do you want to do. '))
+#     if choice == 1:
+#         carga, date = open_file_cmd()
+#         combinar_material(carga, date)
+#         print(carga)
+#     elif choice == 2:
+#         print('Something else')
+#     elif choice ==3:
+#         run = 0
+#         print('adios')
+
+

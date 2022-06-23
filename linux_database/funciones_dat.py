@@ -2,15 +2,13 @@ import sqlite3
 import pandas as pd
 
 
-database = 'materiales.db'
-
 cols = [
     'id', 'maquina', 'codigo del material', 'nombre del material',
     'cantidad', 'unidad', 'area', 'fecha', 'mes'
     ]
 
 
-def create_main_table(database):
+def deploy_database(database):
     connection = sqlite3.connect(database)
     c = connection.cursor()
     c.execute(
@@ -60,7 +58,7 @@ def insert_into_main(df, database):
     connection.close()
 
 
-def get_master():
+def get_master(database):
     data = []
     conn = sqlite3.connect(database)
     c = conn.cursor()
