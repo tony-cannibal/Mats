@@ -29,7 +29,7 @@ def deploy_database(database):
     fecha TEXT, 
     area TEXT,
     codigo TEXT PRIMARY KEY,
-    Excedente anterior TEXT,
+    excedente_anterior TEXT,
     total_ordenado REAL, 
     ordenado_neto REAL,
     unidad TEXT, 
@@ -45,7 +45,7 @@ def deploy_database(database):
     (
     area TEXT,
     codigo TEXT PRIMARY KEY,
-    Excedente anterior TEXT,
+    excedente_anterior TEXT,
     total_ordenado REAL,
     ordenado_neto REAL,
     unidad TEXT, 
